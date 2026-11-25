@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Islan Motos | Peças, Acessórios & Gestão de Vendas</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                            900: '#7c2d12',
+                        },
+                        dark: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-brand-500 selection:text-white flex flex-col min-h-screen">
+
+    <!-- Notificação Toast Flutuante (Substitui alert) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Navegação Principal -->
+    <header class="sticky top-0 z-40 bg-dark-900 text-white shadow-lg border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 sm:h-20">
+                <!-- Logo -->
+                <div class="flex items-center gap-3 cursor-pointer" onclick="switchView('store')">
+                    <div class="bg-brand-600 p-2 rounded-xl shadow-md shadow-brand-600/20">
+                        <i data-lucide="bike" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <div>
+                        <span class="font-extrabold text-xl tracking-tight text-white">ISLAN <span class="text-brand-500">MOTOS</span></span>
+                        <span class="hidden sm:block text-[10px] uppercase tracking-widest text-slate-400 font-semibold">Peças & Acessórios</span>
+                    </div>
+                </div>
+
+                <!-- Alternador de Modo (Loja vs Área do Vendedor) -->
+                <div class="flex items-center bg-dark-950 p-1 rounded-xl border border-slate-800">
+                    <button id="btn-view-store" onclick="switchView('store')" class="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-brand-600 text-white shadow">
+                        <i data-lucide="store" class="w-4 h-4"></i>
+                        <span>Loja / Catálogo</span>
+                    </button>
+                    <button id="btn-view-seller" onclick="switchView('seller')" class="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-400 hover:text-white">
+                        <i data-lucide="briefcase" class="w-4 h-4"></i>
+                        <span>Área do Vendedor</span>
+                    </button>
+                </div>
+
+                <!-- Carrinho (Visível na Loja) -->
+                <div id="store-cart-trigger" class="flex items-center">
+                    <button onclick="toggleCartDrawer()" class="relative p-2.5 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors text-slate-200 hover:text-white">
+                        <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                        <span id="cart-badge" class="absolute -top-1.5 -right-1.5 bg-brand-500 text-white text-[11px] font-bold w-5 h-5 flex items-center justify-center rounded-full shadow">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===================================================================== -->
+    <!-- VISÃO 1: LOJA VIRTUAL / CATÁLOGO DE PEÇAS E ACESSÓRIOS                -->
+    <!-- ===================================================================== -->
+    <main id="view-store" class="flex-grow">
+        <!-- Hero Banner -->
+        <section class="relative bg-dark-900 text-white overflow-hidden border-b border-slate-800">
+            <div class="absolute inset-0 opacity-20 bg-[radial-gradient(#f97316_1px,transparent_1px)] [background-size:20px_20px]"></div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+                <div class="max-w-2xl text-center md:text-left">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-brand-500/10 text-brand-400 border border-brand-500/20 mb-4">
+                        <i data-lucide="zap" class="w-3.5 h-3.5"></i> Alta Performance & Segurança
+                    </span>
+                    <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight mb-4">
+                        Equipamentos e peças originais para sua <span class="text-brand-500">máquina</span>.
+                    </h1>
+                    <p class="text-slate-300 text-base sm:text-lg mb-6 leading-relaxed">
+                        De capacetes certificados a kits de relação, freios e escapamentos esportivos. Atendimento especializado para pilotos exigentes.
+                    </p>
+                    <div class="flex flex-wrap items-center justify-center md:justify-start gap-3">
+                        <a href="#catalogo" class="px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl shadow-lg shadow-brand-600/30 transition-all flex items-center gap-2">
+                            <span>Explorar Catálogo</span>
+                            <i data-lucide="arrow-down" class="w-4 h-4"></i>
+                        </a>
+                        <button onclick="switchView('seller')" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold rounded-xl border border-slate-700 transition-all flex items-center gap-2">
+                            <i data-lucide="receipt" class="w-4 h-4 text-brand-400"></i>
+                            <span>Acesso Balcão / Vendedor</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="w-full max-w-sm md:max-w-md">
+                    <div class="bg-slate-800/80 backdrop-blur border border-slate-700 p-5 rounded-2xl shadow-2xl">
+                        <img src="https://placehold.co/600x400/1e293b/f97316?text=ISLAN+MOTOS+PECAS" alt="Peças de Moto Islan Motos" class="w-full h-48 object-cover rounded-xl mb-4">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-slate-300 font-medium">Envio Imediato & Retirada na Loja</span>
+                            <span class="text-emerald-400 font-bold flex items-center gap-1"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Estoque Atualizado</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Barra de Filtros e Pesquisa do Catálogo -->
+        <section id="catalogo" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">Catálogo de Produtos</h2>
+                    <p class="text-sm text-slate-500">Selecione os itens para orçamento ou compra direta</p>
+                </div>
+
+                <!-- Busca e Filtro -->
+                <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                    <div class="relative flex-grow sm:w-64">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                        <input type="text" id="store-search" oninput="renderStoreProducts()" placeholder="Buscar peça, modelo, marca..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent shadow-sm">
+                    </div>
+                    <select id="store-category" onchange="renderStoreProducts()" class="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm">
+                        <option value="all">Todas as Categorias</option>
+                        <option value="Capacetes">Capacetes</option>
+                        <option value="Motor & Transmissão">Motor & Transmissão</option>
+                        <option value="Freios & Suspensão">Freios & Suspensão</option>
+                        <option value="Acessórios & Vestuário">Acessórios & Vestuário</option>
+                        <option value="Óleos & Fluidos">Óleos & Fluidos</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Grid de Produtos -->
+            <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Preenchido via JavaScript -->
+            </div>
+        </section>
+    </main>
+
+    <!-- ===================================================================== -->
+    <!-- VISÃO 2: ÁREA DO VENDEDOR (PDV, COBRANÇAS E ACOMPANHAMENTO DE VENDAS)  -->
+    <!-- ===================================================================== -->
+    <main id="view-seller" class="hidden flex-grow bg-slate-100 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <!-- Cabeçalho da Área do Vendedor + Seletor de Vendedor Ativo -->
+            <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-0.5 rounded-md bg-brand-100 text-brand-700 text-xs font-bold uppercase tracking-wider">Portal Interno</span>
+                        <h1 class="text-xl sm:text-2xl font-bold text-slate-900">Painel de Cobranças & Performance</h1>
+                    </div>
+                    <p class="text-sm text-slate-500 mt-1">Gere cobranças rápidas no balcão/WhatsApp e acompanhe suas metas e comissões.</p>
+                </div>
+
+                <!-- Seletor de Perfil do Vendedor -->
+                <div class="flex items-center gap-3 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                    <div class="bg-dark-900 text-white p-2 rounded-lg">
+                        <i data-lucide="user-check" class="w-5 h-5 text-brand-500"></i>
+                    </div>
+                    <div>
+                        <label for="active-seller-select" class="block text-[11px] font-semibold text-slate-500 uppercase">Vendedor Logado</label>
+                        <select id="active-seller-select" onchange="updateSellerDashboard()" class="bg-transparent font-bold text-sm text-slate-900 focus:outline-none cursor-pointer">
+                            <option value="Carlos Silva">Carlos Silva (Balcão 01)</option>
+                            <option value="Mariana Costa">Mariana Costa (Televendas)</option>
+                            <option value="Rafael Mendes">Rafael Mendes (Oficina/Peças)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cards de KPIs / Acompanhamento de Vendas -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <!-- KPI 1: Total Vendido -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-semibold text-slate-500 uppercase">Faturamento (Vendedor)</span>
+                        <div class="p-2 bg-emerald-50 text-emerald-600 rounded-lg"><i data-lucide="dollar-sign" class="w-4 h-4"></i></div>
+                    </div>
+                    <div id="kpi-total-sold" class="text-2xl font-extrabold text-slate-900">R$ 0,00</div>
+                    <p class="text-xs text-emerald-600 font-medium mt-1 flex items-center gap-1">
+                        <i data-lucide="trending-up" class="w-3.5 h-3.5"></i> Vendas concluídas (Pagas)
+                    </p>
+                </div>
+
+                <!-- KPI 2: Comissão Estimada (5%) -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-semibold text-slate-500 uppercase">Comissão Acumulada (5%)</span>
+                        <div class="p-2 bg-brand-50 text-brand-600 rounded-lg"><i data-lucide="award" class="w-4 h-4"></i></div>
+                    </div>
+                    <div id="kpi-commission" class="text-2xl font-extrabold text-brand-600">R$ 0,00</div>
+                    <p class="text-xs text-slate-500 mt-1">Calculado sobre cobranças pagas</p>
+                </div>
+
+                <!-- KPI 3: Cobranças Pendentes -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-semibold text-slate-500 uppercase">Aguardando Pagamento</span>
+                        <div class="p-2 bg-amber-50 text-amber-600 rounded-lg"><i data-lucide="clock" class="w-4 h-4"></i></div>
+                    </div>
+                    <div id="kpi-pending" class="text-2xl font-extrabold text-amber-600">R$ 0,00</div>
+                    <p id="kpi-pending-count" class="text-xs text-slate-500 mt-1">0 cobranças em aberto</p>
+                </div>
+
+                <!-- KPI 4: Meta Mensal -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-semibold text-slate-500 uppercase">Meta Mensal (R$ 15.000)</span>
+                        <span id="kpi-goal-percent" class="text-xs font-bold text-brand-600">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2.5 mb-2 overflow-hidden">
+                        <div id="kpi-goal-bar" class="bg-brand-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <p id="kpi-sales-count" class="text-xs text-slate-500">0 pedidos realizados no período</p>
+                </div>
+            </div>
+
+            <!-- Grid Principal do Vendedor: Gerador de Cobrança (Esquerda) + Histórico/Acompanhamento (Direita) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- COLUNA ESQUERDA: Terminal de Cobrança / PDV (5 colunas) -->
+                <div class="lg:col-span-5 bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6 h-fit">
+                    <div class="flex items-center gap-2.5 pb-4 mb-5 border-b border-slate-100">
+                        <div class="p-2 bg-brand-600 text-white rounded-xl">
+                            <i data-lucide="credit-card" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-900">Nova Cobrança / Pedido</h2>
+                            <p class="text-xs text-slate-500">Monte o pedido e gere o comprovante ou link PIX</p>
+                        </div>
+                    </div>
+
+                    <form id="billing-form" onsubmit="createCharge(event)" class="space-y-4">
+                        <!-- Dados do Cliente -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Nome do Cliente *</label>
+                                <input type="text" id="bill-client-name" required placeholder="Ex: João Pedro" class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">WhatsApp / Telefone</label>
+                                <input type="text" id="bill-client-phone" placeholder="(11) 99999-9999" class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            </div>
+                        </div>
+
+                        <!-- Adicionar Peça ao Pedido -->
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                            <label class="block text-xs font-semibold text-slate-700 mb-2">Adicionar Peça / Acessório</label>
+                            <div class="flex gap-2">
+                                <select id="bill-product-select" class="flex-grow px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                    <!-- Preenchido via JS -->
+                                </select>
+                                <input type="number" id="bill-product-qty" value="1" min="1" max="50" class="w-16 px-2.5 py-2 bg-white border border-slate-200 rounded-xl text-sm text-center font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                <button type="button" onclick="addItemToBilling()" class="px-3.5 py-2 bg-dark-900 hover:bg-slate-800 text-white rounded-xl text-sm font-semibold transition-colors flex items-center gap-1">
+                                    <i data-lucide="plus" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+
+                            <!-- Lista de Itens Selecionados na Cobrança -->
+                            <div id="billing-items-list" class="mt-3 space-y-2 max-h-40 overflow-y-auto">
+                                <p class="text-xs text-slate-400 text-center py-3">Nenhum item adicionado à cobrança.</p>
+                            </div>
+                        </div>
+
+                        <!-- Forma de Pagamento e Status Inicial -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Forma de Pagamento</label>
+                                <select id="bill-payment-method" class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                    <option value="PIX">PIX (Aprovação Imediata)</option>
+                                    <option value="Cartão de Crédito">Cartão de Crédito</option>
+                                    <option value="Cartão de Débito">Cartão de Débito</option>
+                                    <option value="Dinheiro">Dinheiro (Balcão)</option>
+                                    <option value="Link de Pagamento">Link de Pagamento</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Status da Cobrança</label>
+                                <select id="bill-status" class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                    <option value="Pago">Pago (Confirmado)</option>
+                                    <option value="Pendente">Pendente (Aguardando Cliente)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Desconto opcional -->
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                            <div class="flex items-center gap-2">
+                                <label for="bill-discount" class="text-xs font-semibold text-slate-600">Desconto (R$):</label>
+                                <input type="number" id="bill-discount" value="0" min="0" step="5" oninput="renderBillingItems()" class="w-24 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium">
+                            </div>
+                            <div class="text-right">
+                                <span class="block text-[11px] text-slate-500 uppercase font-semibold">Total a Cobrar</span>
+                                <span id="bill-total-display" class="text-xl font-extrabold text-slate-900">R$ 0,00</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl shadow-lg shadow-brand-600/20 transition-all flex items-center justify-center gap-2">
+                            <i data-lucide="check-circle" class="w-5 h-5"></i>
+                            <span>Gerar Cobrança & Registrar Venda</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- COLUNA DIREITA: Acompanhamento de Vendas e Cobranças (7 colunas) -->
+                <div class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6 flex flex-col">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-5 border-b border-slate-100">
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-900">Acompanhamento de Cobranças</h2>
+                            <p class="text-xs text-slate-500">Gerencie pagamentos pendentes, envie recibos e acompanhe o histórico</p>
+                        </div>
+
+                        <!-- Filtro de Status e Escopo -->
+                        <div class="flex items-center gap-2">
+                            <select id="filter-sales-scope" onchange="updateSellerDashboard()" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700">
+                                <option value="mine">Minhas Vendas</option>
+                                <option value="all">Toda a Loja</option>
+                            </select>
+                            <select id="filter-sales-status" onchange="updateSellerDashboard()" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700">
+                                <option value="all">Todos Status</option>
+                                <option value="Pago">Pagos</option>
+                                <option value="Pendente">Pendentes</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Tabela / Lista Responsiva de Vendas -->
+                    <div class="overflow-x-auto flex-grow">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-200 text-[11px] font-bold uppercase text-slate-400">
+                                    <th class="py-3 px-2">Pedido / Cliente</th>
+                                    <th class="py-3 px-2">Itens</th>
+                                    <th class="py-3 px-2">Pagamento</th>
+                                    <th class="py-3 px-2">Valor</th>
+                                    <th class="py-3 px-2">Status</th>
+                                    <th class="py-3 px-2 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sales-table-body" class="divide-y divide-slate-100 text-sm">
+                                <!-- Preenchido via JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- ===================================================================== -->
+    <!-- DRAWER DO CARRINHO DO CLIENTE (LOJA)                                  -->
+    <!-- ===================================================================== -->
+    <div id="cart-drawer" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="toggleCartDrawer()"></div>
+        <div class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-2xl flex flex-col justify-between">
+            <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-dark-900 text-white">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="shopping-bag" class="w-5 h-5 text-brand-500"></i>
+                    <h3 class="font-bold text-lg">Seu Carrinho</h3>
+                </div>
+                <button onclick="toggleCartDrawer()" class="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div id="cart-items-container" class="p-5 flex-grow overflow-y-auto space-y-4">
+                <!-- Itens do carrinho -->
+            </div>
+
+            <div class="p-5 border-t border-slate-200 bg-slate-50 space-y-3">
+                <div class="flex items-center justify-between text-base font-bold text-slate-900">
+                    <span>Subtotal</span>
+                    <span id="cart-total-price">R$ 0,00</span>
+                </div>
+                <p class="text-xs text-slate-500">Envie seu carrinho diretamente para o balcão de vendas para gerar sua cobrança PIX ou Cartão.</p>
+                <button onclick="sendCartToSellerCheckout()" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                    <span>Enviar para Cobrança no Balcão</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODAL DE COMPROVANTE / LINK DE COBRANÇA PIX                           -->
+    <!-- ===================================================================== -->
+    <div id="receipt-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" onclick="closeReceiptModal()"></div>
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 relative z-10 shadow-2xl border border-slate-200">
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <div class="p-2 bg-brand-100 text-brand-600 rounded-lg">
+                        <i data-lucide="file-text" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-900" id="modal-receipt-title">Detalhes da Cobrança</h3>
+                </div>
+                <button onclick="closeReceiptModal()" class="p-1 text-slate-400 hover:text-slate-700 rounded-lg">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div id="receipt-modal-content" class="space-y-3 text-sm text-slate-700">
+                <!-- Preenchido via JS -->
+            </div>
+
+            <div class="mt-6 flex flex-col sm:flex-row gap-2">
+                <button onclick="copyReceiptText()" class="flex-1 py-2.5 px-4 bg-dark-900 hover:bg-slate-800 text-white font-semibold rounded-xl flex items-center justify-center gap-2 text-sm transition-colors">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                    <span>Copiar Cobrança / PIX</span>
+                </button>
+                <button onclick="closeReceiptModal()" class="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-sm transition-colors">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark-950 text-slate-400 py-10 border-t border-slate-900 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pb-8 border-b border-slate-900">
+                <!-- Coluna 1: Marca e CNPJ -->
+                <div class="space-y-3">
+                    <div class="flex items-center gap-2.5">
+                        <div class="bg-brand-600 p-1.5 rounded-lg">
+                            <i data-lucide="bike" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <span class="font-extrabold text-lg tracking-tight text-white">ISLAN <span class="text-brand-500">MOTOS</span></span>
+                    </div>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Especializada em peças originais, acessórios e equipamentos para motociclistas com atendimento ágil no balcão e online.
+                    </p>
+                    <p class="text-xs font-mono text-slate-300 bg-slate-900/80 inline-block px-3 py-1.5 rounded-lg border border-slate-800">
+                        CNPJ: 69.146.291/0001-27
+                    </p>
+                </div>
+
+                <!-- Coluna 2: Contato Direto -->
+                <div class="space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-white">Atendimento & Contato</h4>
+                    <ul class="space-y-2.5 text-xs">
+                        <li>
+                            <a href="https://wa.me/5511968214073" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-slate-300 hover:text-emerald-400 transition-colors">
+                                <i data-lucide="message-circle" class="w-4 h-4 text-emerald-500 shrink-0"></i>
+                                <span>WhatsApp: <strong>(11) 96821-4073</strong></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="tel:+5511968214073" class="flex items-center gap-2 text-slate-300 hover:text-brand-400 transition-colors">
+                                <i data-lucide="phone" class="w-4 h-4 text-brand-500 shrink-0"></i>
+                                <span>Telefone: <strong>(11) 96821-4073</strong></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="mailto:islanmotos@gmail.com" class="flex items-center gap-2 text-slate-300 hover:text-brand-400 transition-colors">
+                                <i data-lucide="mail" class="w-4 h-4 text-brand-500 shrink-0"></i>
+                                <span>E-mail: <strong>islanmotos@gmail.com</strong></span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Coluna 3: Acesso Rápido -->
+                <div class="space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-white">Navegação Rápida</h4>
+                    <div class="flex flex-col space-y-2 text-xs">
+                        <button onclick="switchView('store')" class="text-left text-slate-400 hover:text-white transition-colors flex items-center gap-1.5">
+                            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-brand-500"></i>
+                            <span>Catálogo de Peças e Acessórios</span>
+                        </button>
+                        <button onclick="switchView('seller')" class="text-left text-slate-400 hover:text-white transition-colors flex items-center gap-1.5">
+                            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-brand-500"></i>
+                            <span>Área do Vendedor (Cobranças & PDV)</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Direitos Autorais -->
+            <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+                <p>&copy; 2026 <strong class="text-slate-300">Islan Motos</strong>. Todos os direitos reservados.</p>
+                <p>Peças & Acessórios • Atendimento e Gestão Integrada</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===================================================================== -->
+    <!-- JAVASCRIPT: LÓGICA DO CATÁLOGO, CARRINHO, PDV E DASHBOARD DE VENDAS   -->
+    <!-- ===================================================================== -->
+    <script>
+        // 1. BANCO DE DADOS INICIAL DE PRODUTOS (PEÇAS E ACESSÓRIOS)
+        const products = [
+            {
+                id: 1,
+                sku: 'CAP-LS2-01',
+                name: 'Capacete LS2 FF358 Classic Preto Fosco',
+                category: 'Capacetes',
+                price: 649.90,
+                stock: 12,
+                compat: 'Universal / Viseira Cristal 2mm',
+                img: 'https://placehold.co/400x300/1e293b/f97316?text=Capacete+LS2+FF358'
+            },
+            {
+                id: 2,
+                sku: 'REL-DID-02',
+                name: 'Kit Relação DID com Retentor (Aço 1045)',
+                category: 'Motor & Transmissão',
+                price: 389.00,
+                stock: 8,
+                compat: 'CB 300R / Fazer 250 / Twister',
+                img: 'https://placehold.co/400x300/1e293b/f97316?text=Kit+Relacao+DID'
+            },
+            {
+                id: 3,
+                sku: 'FRE-BRE-03',
+                name: 'Pastilha de Freio Sinterizada Dianteira',
+                category: 'Freios & Suspensão',
+                price: 145.50,
+                stock: 25,
+                compat: 'Hornet / XJ6 / MT-07 / CB 500',
+                img: 'https://placehold.co/400x300/1e293b/f97316?text=Pastilha+Sinterizada'
+            },
+            {
+                id: 4,
+                sku: 'OLE-MOT-04',
+                name: 'Óleo Motul 5100 10W40 Semissintético (1L)',
+                category: 'Óleos & Fluidos',
+                price: 68.00,
+                stock: 40,
+                compat: 'Motores 4 Tempos Alta Rotação',
+                img: 'https://placehold.co/400x300/1e293b/f97316?text=Motul+5100+10W40'
+            },
+            {
+                id: 5,
+                sku: 'LUV-X11-05',
+                name: 'Luva X11 Blackout Meio Dedo / Proteção',
+                category: 'Acessórios & Vestuário',
+                price: 119.90,
+                stock: 18,
+                compat: 'Tamanhos P, M, G, GG',
+                img: 'https://placehold.co/400x300/1e293b/f97316?text=Luva+X11+Blackout'
+            },
+            {
+                id: 6,
+                sku: 'ESC-JES-06',
+                name: 'Escapamento Esportivo Ponteira Carbono',
+                category: 'Motor & Transmissão',
+                price: 890.00,
+                stock: 4,
+                compat: 'CG 160 / FZ25 / MT-03',
+                img: 'https://placehold.co/400x300/1e293b/f97316?text=Escapamento+Carbono'
+            },
+            {
+                id: 7,
+                sku: 'BAU-GIV-07',
+                name: 'Baú Bauleto Givi 45 Litros Traffic',
+                category: 'Acessórios & Vestuário',
+                price: 429.00,
+                stock: 9,
+                compat: 'Acompanha Base Universal',
+                img: 'https://placehold.co/400x300/1e293b/f97316?text=Bauleto+Givi+45L'
+            },
+            {
+                id: 8,
+                sku: 'AMO-COF-08',
+                name: 'Amortecedor Traseiro Monoshock Pro',
+                category: 'Freios & Suspensão',
+                price: 540.00,
+                stock: 6,
+                compat: 'XRE 300 / Bros 160 / Lander',
+                img: 'https://placehold.co/400x300/1e293b/f97316?text=Amortecedor+Pro'
+            }
+        ];
+
+        // 2. ESTADO DA APLICAÇÃO (Carrinho, Itens do PDV e Histórico de Vendas)
+        let storeCart = [];
+        let currentBillingItems = [];
+        let currentReceiptCopyText = '';
+
+        // Histórico inicial de vendas para demonstração imediata
+        let salesRecords = [
+            {
+                id: 'PED-1042',
+                date: '25/11/2026 14:15',
+                seller: 'Carlos Silva',
+                clientName: 'Marcos Oliveira',
+                clientPhone: '(11) 98765-4321',
+                items: [
+                    { name: 'Capacete LS2 FF358 Classic Preto Fosco', qty: 1, price: 649.90 },
+                    { name: 'Luva X11 Blackout Meio Dedo / Proteção', qty: 1, price: 119.90 }
+                ],
+                discount: 19.80,
+                total: 750.00,
+                method: 'PIX',
+                status: 'Pago'
+            },
+            {
+                id: 'PED-1041',
+                date: '25/11/2026 11:30',
+                seller: 'Carlos Silva',
+                clientName: 'Oficina MotoFast',
+                clientPhone: '(11) 99123-0099',
+                items: [
+                    { name: 'Óleo Motul 5100 10W40 Semissintético (1L)', qty: 6, price: 68.00 },
+                    { name: 'Pastilha de Freio Sinterizada Dianteira', qty: 2, price: 145.50 }
+                ],
+                discount: 0,
+                total: 699.00,
+                method: 'Link de Pagamento',
+                status: 'Pendente'
+            },
+            {
+                id: 'PED-1040',
+                date: '24/11/2026 17:45',
+                seller: 'Mariana Costa',
+                clientName: 'Fernanda Lima',
+                clientPhone: '(11) 97777-8888',
+                items: [
+                    { name: 'Escapamento Esportivo Ponteira Carbono', qty: 1, price: 890.00 }
+                ],
+                discount: 40.00,
+                total: 850.00,
+                method: 'Cartão de Crédito',
+                status: 'Pago'
+            },
+            {
+                id: 'PED-1039',
+                date: '24/11/2026 10:20',
+                seller: 'Carlos Silva',
+                clientName: 'Rodrigo Santos',
+                clientPhone: '(11) 96543-2100',
+                items: [
+                    { name: 'Kit Relação DID com Retentor (Aço 1045)', qty: 2, price: 389.00 },
+                    { name: 'Baú Bauleto Givi 45 Litros Traffic', qty: 1, price: 429.00 }
+                ],
+                discount: 0,
+                total: 1207.00,
+                method: 'Cartão de Débito',
+                status: 'Pago'
+            }
+        ];
+
+        // Formatação em Real (BRL)
+        function formatBRL(value) {
+            return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        // Notificação Toast Customizada (Sem usar alert)
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-dark-900 border-emerald-500' : 'bg-dark-900 border-amber-500';
+            const iconColor = type === 'success' ? 'text-emerald-400' : 'text-amber-400';
+
+            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border-l-4 ${bgColor} text-white shadow-xl text-sm font-medium transform transition-all duration-300 translate-y-2 opacity-0`;
+            toast.innerHTML = `
+                <i data-lucide="${type === 'success' ? 'check-circle-2' : 'alert-circle'}" class="w-5 h-5 ${iconColor} shrink-0"></i>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3200);
+        }
+
+        // Alternar entre Loja e Área do Vendedor
+        function switchView(view) {
+            const storeView = document.getElementById('view-store');
+            const sellerView = document.getElementById('view-seller');
+            const btnStore = document.getElementById('btn-view-store');
+            const btnSeller = document.getElementById('btn-view-seller');
+            const cartTrigger = document.getElementById('store-cart-trigger');
+
+            if (view === 'store') {
+                storeView.classList.remove('hidden');
+                sellerView.classList.add('hidden');
+                cartTrigger.classList.remove('hidden');
+
+                btnStore.className = 'flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-brand-600 text-white shadow';
+                btnSeller.className = 'flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-400 hover:text-white';
+            } else {
+                storeView.classList.add('hidden');
+                sellerView.classList.remove('hidden');
+                cartTrigger.classList.add('hidden');
+
+                btnSeller.className = 'flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-brand-600 text-white shadow';
+                btnStore.className = 'flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-400 hover:text-white';
+                updateSellerDashboard();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // =====================================================================
+        // FUNÇÕES DA LOJA VIRTUAL
+        // =====================================================================
+        function renderStoreProducts() {
+            const grid = document.getElementById('products-grid');
+            const searchTerm = document.getElementById('store-search').value.toLowerCase();
+            const categoryFilter = document.getElementById('store-category').value;
+
+            const filtered = products.filter(p => {
+                const matchesSearch = p.name.toLowerCase().includes(searchTerm) || p.compat.toLowerCase().includes(searchTerm) || p.sku.toLowerCase().includes(searchTerm);
+                const matchesCat = categoryFilter === 'all' || p.category === categoryFilter;
+                return matchesSearch && matchesCat;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-12 bg-white rounded-2xl border border-slate-200">
+                        <p class="text-slate-500 font-medium">Nenhuma peça encontrada com os filtros selecionados.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(product => `
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
+                    <div>
+                        <div class="relative overflow-hidden bg-slate-100 h-44">
+                            <img src="${product.img}" alt="${product.name}" onerror="this.src='https://placehold.co/400x300/1e293b/ffffff?text=MotoGear'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                            <span class="absolute top-3 left-3 bg-dark-900/85 backdrop-blur text-white text-[10px] font-bold uppercase px-2.5 py-1 rounded-md">
+                                ${product.category}
+                            </span>
+                            <span class="absolute bottom-2 right-2 bg-white/90 text-slate-700 text-[10px] font-semibold px-2 py-0.5 rounded">
+                                Estoque: ${product.stock} un.
+                            </span>
+                        </div>
+                        <div class="p-4">
+                            <span class="text-[11px] font-mono text-slate-400">${product.sku}</span>
+                            <h3 class="font-bold text-slate-900 text-base leading-snug mt-0.5 mb-1.5 line-clamp-2">${product.name}</h3>
+                            <p class="text-xs text-slate-500 flex items-center gap-1">
+                                <i data-lucide="wrench" class="w-3.5 h-3.5 text-brand-500 shrink-0"></i>
+                                <span class="truncate">${product.compat}</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="p-4 pt-0 flex items-center justify-between border-t border-slate-100 mt-2 pt-3">
+                        <div>
+                            <span class="block text-[10px] text-slate-400 uppercase font-semibold">À vista / PIX</span>
+                            <span class="text-lg font-extrabold text-slate-900">${formatBRL(product.price)}</span>
+                        </div>
+                        <button onclick="addToCart(${product.id})" class="px-3.5 py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded-xl shadow transition-colors flex items-center gap-1.5">
+                            <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                            <span>Comprar</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const existing = storeCart.find(item => item.id === productId);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                storeCart.push({ ...product, qty: 1 });
+            }
+
+            updateCartUI();
+            showToast(`"${product.name}" adicionado ao carrinho!`);
+        }
+
+        function updateCartUI() {
+            const badge = document.getElementById('cart-badge');
+            const container = document.getElementById('cart-items-container');
+            const totalEl = document.getElementById('cart-total-price');
+
+            const totalQty = storeCart.reduce((acc, item) => acc + item.qty, 0);
+            const totalPrice = storeCart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+
+            badge.textContent = totalQty;
+            totalEl.textContent = formatBRL(totalPrice);
+
+            if (storeCart.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-slate-400">
+                        <i data-lucide="shopping-bag" class="w-12 h-12 mx-auto mb-3 opacity-30"></i>
+                        <p class="text-sm font-medium">Seu carrinho está vazio.</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = storeCart.map(item => `
+                    <div class="flex items-center justify-between gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <div class="flex-grow">
+                            <h4 class="text-sm font-bold text-slate-900 leading-tight">${item.name}</h4>
+                            <span class="text-xs font-semibold text-brand-600">${formatBRL(item.price)} un.</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="changeCartQty(${item.id}, -1)" class="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center font-bold text-slate-600 hover:bg-slate-100">-</button>
+                            <span class="text-sm font-bold w-5 text-center">${item.qty}</span>
+                            <button onclick="changeCartQty(${item.id}, 1)" class="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center font-bold text-slate-600 hover:bg-slate-100">+</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            lucide.createIcons();
+        }
+
+        function changeCartQty(id, delta) {
+            const idx = storeCart.findIndex(i => i.id === id);
+            if (idx === -1) return;
+            storeCart[idx].qty += delta;
+            if (storeCart[idx].qty <= 0) {
+                storeCart.splice(idx, 1);
+            }
+            updateCartUI();
+        }
+
+        function toggleCartDrawer() {
+            const drawer = document.getElementById('cart-drawer');
+            drawer.classList.toggle('hidden');
+        }
+
+        // Integração: Envia o carrinho do cliente direto para o Terminal de Cobrança do Vendedor
+        function sendCartToSellerCheckout() {
+            if (storeCart.length === 0) {
+                showToast('Adicione itens ao carrinho primeiro.', 'warning');
+                return;
+            }
+            currentBillingItems = storeCart.map(item => ({
+                id: item.id,
+                name: item.name,
+                price: item.price,
+                qty: item.qty
+            }));
+            storeCart = [];
+            updateCartUI();
+            toggleCartDrawer();
+            switchView('seller');
+            renderBillingItems();
+            showToast('Itens transferidos para o Terminal de Cobrança do Vendedor!');
+        }
+
+        // =====================================================================
+        // FUNÇÕES DA ÁREA DO VENDEDOR (COBRANÇAS & ACOMPANHAMENTO)
+        // =====================================================================
+        function populateBillingProductSelect() {
+            const select = document.getElementById('bill-product-select');
+            select.innerHTML = products.map(p => `
+                <option value="${p.id}">${p.name} - ${formatBRL(p.price)}</option>
+            `).join('');
+        }
+
+        function addItemToBilling() {
+            const productId = parseInt(document.getElementById('bill-product-select').value);
+            const qty = parseInt(document.getElementById('bill-product-qty').value) || 1;
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const existing = currentBillingItems.find(i => i.id === productId);
+            if (existing) {
+                existing.qty += qty;
+            } else {
+                currentBillingItems.push({
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    qty: qty
+                });
+            }
+
+            document.getElementById('bill-product-qty').value = 1;
+            renderBillingItems();
+        }
+
+        function removeBillingItem(index) {
+            currentBillingItems.splice(index, 1);
+            renderBillingItems();
+        }
+
+        function renderBillingItems() {
+            const listEl = document.getElementById('billing-items-list');
+            const totalDisplay = document.getElementById('bill-total-display');
+            const discount = parseFloat(document.getElementById('bill-discount').value) || 0;
+
+            if (currentBillingItems.length === 0) {
+                listEl.innerHTML = `<p class="text-xs text-slate-400 text-center py-3">Nenhum item adicionado à cobrança.</p>`;
+                totalDisplay.textContent = formatBRL(0);
+                return;
+            }
+
+            const subtotal = currentBillingItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
+            const finalTotal = Math.max(0, subtotal - discount);
+
+            listEl.innerHTML = currentBillingItems.map((item, index) => `
+                <div class="flex items-center justify-between bg-white px-3 py-2 rounded-lg border border-slate-200 text-xs">
+                    <div class="truncate pr-2">
+                        <span class="font-bold text-slate-800">${item.qty}x</span> ${item.name}
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <span class="font-bold text-slate-900">${formatBRL(item.price * item.qty)}</span>
+                        <button type="button" onclick="removeBillingItem(${index})" class="text-rose-500 hover:text-rose-700 p-1">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            totalDisplay.textContent = formatBRL(finalTotal);
+            lucide.createIcons();
+        }
+
+        // Gerar Cobrança e Salvar no Histórico
+        function createCharge(event) {
+            event.preventDefault();
+
+            if (currentBillingItems.length === 0) {
+                showToast('Adicione pelo menos uma peça ao pedido antes de cobrar.', 'warning');
+                return;
+            }
+
+            const seller = document.getElementById('active-seller-select').value;
+            const clientName = document.getElementById('bill-client-name').value.trim();
+            const clientPhone = document.getElementById('bill-client-phone').value.trim() || 'Não informado';
+            const method = document.getElementById('bill-payment-method').value;
+            const status = document.getElementById('bill-status').value;
+            const discount = parseFloat(document.getElementById('bill-discount').value) || 0;
+
+            const subtotal = currentBillingItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
+            const total = Math.max(0, subtotal - discount);
+
+            const now = new Date();
+            const formattedDate = now.toLocaleDateString('pt-BR') + ' ' + now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            const orderId = 'PED-' + Math.floor(1043 + Math.random() * 900);
+
+            const newSale = {
+                id: orderId,
+                date: formattedDate,
+                seller: seller,
+                clientName: clientName,
+                clientPhone: clientPhone,
+                items: [...currentBillingItems],
+                discount: discount,
+                total: total,
+                method: method,
+                status: status
+            };
+
+            salesRecords.unshift(newSale);
+
+            // Resetar formulário
+            document.getElementById('billing-form').reset();
+            currentBillingItems = [];
+            renderBillingItems();
+            updateSellerDashboard();
+
+            showToast(`Cobrança ${orderId} gerada com sucesso!`);
+            openReceiptModal(orderId);
+        }
+
+        // Dar baixa em cobrança pendente
+        function markAsPaid(orderId) {
+            const sale = salesRecords.find(s => s.id === orderId);
+            if (sale) {
+                sale.status = 'Pago';
+                updateSellerDashboard();
+                showToast(`Pagamento do pedido ${orderId} confirmado!`);
+            }
+        }
+
+        // Atualizar KPIs e Tabela de Acompanhamento
+        function updateSellerDashboard() {
+            const activeSeller = document.getElementById('active-seller-select').value;
+            const scopeFilter = document.getElementById('filter-sales-scope').value;
+            const statusFilter = document.getElementById('filter-sales-status').value;
+
+            // Dados do vendedor ativo para os KPIs
+            const sellerSales = salesRecords.filter(s => s.seller === activeSeller);
+            const paidSales = sellerSales.filter(s => s.status === 'Pago');
+            const pendingSales = sellerSales.filter(s => s.status === 'Pendente');
+
+            const totalSold = paidSales.reduce((acc, s) => acc + s.total, 0);
+            const totalPending = pendingSales.reduce((acc, s) => acc + s.total, 0);
+            const commission = totalSold * 0.05; // 5% de comissão
+            const monthlyGoal = 15000;
+            const goalPercent = Math.min(100, Math.round((totalSold / monthlyGoal) * 100));
+
+            document.getElementById('kpi-total-sold').textContent = formatBRL(totalSold);
+            document.getElementById('kpi-commission').textContent = formatBRL(commission);
+            document.getElementById('kpi-pending').textContent = formatBRL(totalPending);
+            document.getElementById('kpi-pending-count').textContent = `${pendingSales.length} cobrança(s) em aberto`;
+            document.getElementById('kpi-goal-percent').textContent = `${goalPercent}%`;
+            document.getElementById('kpi-goal-bar').style.width = `${goalPercent}%`;
+            document.getElementById('kpi-sales-count').textContent = `${sellerSales.length} pedido(s) registrado(s) por ${activeSeller}`;
+
+            // Filtrar tabela de acompanhamento
+            const filteredTable = salesRecords.filter(s => {
+                const matchScope = scopeFilter === 'all' || s.seller === activeSeller;
+                const matchStatus = statusFilter === 'all' || s.status === statusFilter;
+                return matchScope && matchStatus;
+            });
+
+            const tbody = document.getElementById('sales-table-body');
+            if (filteredTable.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="py-8 text-center text-slate-400 text-sm">Nenhum registro encontrado para este filtro.</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filteredTable.map(sale => {
+                const isPaid = sale.status === 'Pago';
+                const statusBadge = isPaid
+                    ? `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>Pago</span>`
+                    : `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700"><span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>Pendente</span>`;
+
+                const itemsSummary = sale.items.map(i => `${i.qty}x ${i.name}`).join(', ');
+
+                return `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="py-3.5 px-2">
+                            <div class="font-bold text-slate-900 text-xs">${sale.id} • ${sale.clientName}</div>
+                            <div class="text-[11px] text-slate-400">${sale.date} • Vend: ${sale.seller.split(' ')[0]}</div>
+                        </td>
+                        <td class="py-3.5 px-2 max-w-[180px]">
+                            <p class="text-xs text-slate-600 truncate" title="${itemsSummary}">${itemsSummary}</p>
+                        </td>
+                        <td class="py-3.5 px-2">
+                            <span class="text-xs font-medium text-slate-700">${sale.method}</span>
+                        </td>
+                        <td class="py-3.5 px-2 font-extrabold text-slate-900 text-xs">
+                            ${formatBRL(sale.total)}
+                        </td>
+                        <td class="py-3.5 px-2">
+                            ${statusBadge}
+                        </td>
+                        <td class="py-3.5 px-2 text-right">
+                            <div class="flex items-center justify-end gap-1.5">
+                                ${!isPaid ? `
+                                    <button onclick="markAsPaid('${sale.id}')" title="Confirmar Pagamento" class="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-lg transition-colors">
+                                        <i data-lucide="check" class="w-4 h-4"></i>
+                                    </button>
+                                ` : ''}
+                                <button onclick="openReceiptModal('${sale.id}')" title="Ver Comprovante / Link PIX" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors">
+                                    <i data-lucide="receipt" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        // Modal de Comprovante e Cópia Rápida para WhatsApp
+        function openReceiptModal(orderId) {
+            const sale = salesRecords.find(s => s.id === orderId);
+            if (!sale) return;
+
+            const modal = document.getElementById('receipt-modal');
+            const content = document.getElementById('receipt-modal-content');
+            const title = document.getElementById('modal-receipt-title');
+
+            title.textContent = sale.status === 'Pago' ? `Comprovante ${sale.id}` : `Cobrança ${sale.id} (Pendente)`;
+
+            const itemsHtml = sale.items.map(i => `
+                <div class="flex justify-between text-xs py-1 border-b border-slate-100">
+                    <span>${i.qty}x ${i.name}</span>
+                    <span class="font-semibold">${formatBRL(i.price * i.qty)}</span>
+                </div>
+            `).join('');
+
+            content.innerHTML = `
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-1.5 text-xs">
+                    <div class="flex justify-between"><span class="text-slate-500">Cliente:</span> <span class="font-bold text-slate-900">${sale.clientName}</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Vendedor:</span> <span class="font-semibold">${sale.seller}</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Data/Hora:</span> <span>${sale.date}</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Forma Pagto:</span> <span class="font-semibold">${sale.method}</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Status:</span> <span class="font-bold ${sale.status === 'Pago' ? 'text-emerald-600' : 'text-amber-600'}">${sale.status.toUpperCase()}</span></div>
+                </div>
+                <div>
+                    <p class="text-xs font-bold text-slate-700 mb-1">Resumo das Peças:</p>
+                    ${itemsHtml}
+                </div>
+                ${sale.discount > 0 ? `<div class="flex justify-between text-xs text-emerald-600 font-semibold"><span>Desconto aplicado:</span><span>- ${formatBRL(sale.discount)}</span></div>` : ''}
+                <div class="flex justify-between items-center pt-2 text-base font-extrabold text-slate-900">
+                    <span>Total:</span>
+                    <span class="text-brand-600">${formatBRL(sale.total)}</span>
+                </div>
+                ${sale.status === 'Pendente' ? `
+                    <div class="bg-amber-50 border border-amber-200 p-3 rounded-xl text-xs text-amber-800">
+                        <strong>Chave PIX Islan Motos (CNPJ):</strong> 69.146.291/0001-27<br>
+                        Envie o resumo abaixo para o WhatsApp do cliente.
+                    </div>
+                ` : ''}
+            `;
+
+            // Monta texto formatado para copiar e colar no WhatsApp
+            const itemsText = sale.items.map(i => `• ${i.qty}x ${i.name} (${formatBRL(i.price * i.qty)})`).join('\n');
+            currentReceiptCopyText = `*ISLAN MOTOS - ${sale.status === 'Pago' ? 'COMPROVANTE' : 'COBRANÇA'} ${sale.id}*\n` +
+                `Cliente: ${sale.clientName}\n` +
+                `Vendedor: ${sale.seller}\n` +
+                `-----------------------------\n` +
+                `${itemsText}\n` +
+                `-----------------------------\n` +
+                `Total: *${formatBRL(sale.total)}* (${sale.method})\n` +
+                `Status: *${sale.status.toUpperCase()}*\n` +
+                (sale.status === 'Pendente' ? `\nChave PIX (CNPJ): 69.146.291/0001-27` : `\nObrigado pela preferência!`) +
+                `\nContato Islan Motos: (11) 96821-4073`;
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeReceiptModal() {
+            document.getElementById('receipt-modal').classList.add('hidden');
+        }
+
+        function copyReceiptText() {
+            const tempInput = document.createElement('textarea');
+            tempInput.value = currentReceiptCopyText;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            showToast('Resumo da cobrança copiado para enviar no WhatsApp!');
+        }
+
+        // Inicialização
+        window.onload = function() {
+            renderStoreProducts();
+            updateCartUI();
+            populateBillingProductSelect();
+            updateSellerDashboard();
+            lucide.createIcons();
+        };
+    </script>
+</body>
+</html>
+```
